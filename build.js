@@ -9,7 +9,7 @@ const config = {
   templateDir: './templates',
   siteName: 'ListLog',
   siteDescription: 'A simple, clean blog for sharing your thoughts',
-  siteUrl: 'https://yourusername.github.io/listlog'
+  siteUrl: 'https://grouplist.github.io/ListLog'
 };
 
 // Ensure output directory exists
