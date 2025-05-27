@@ -203,6 +203,7 @@ function build() {
   const indexHtml = indexTemplate
     .replace(/{{siteName}}/g, config.siteName)
     .replace(/{{siteDescription}}/g, config.siteDescription)
+    .replace(/{{siteUrl}}/g, config.siteUrl)
     .replace('{{posts}}', postsList)
     .replace('{{postsCount}}', posts.length);
   
