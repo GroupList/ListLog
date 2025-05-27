@@ -1,0 +1,17 @@
+{
+  "name": "listlog",
+  "version": "1.0.0",
+  "description": "ListLog - A simple, clean static blog generator",
+  "main": "build.js",
+  "scripts": {
+    "build": "node build.js",
+    "dev": "npm run build && python3 -m http.server 8000 --directory dist",
+    "clean": "rm -rf dist"
+  },
+  "keywords": ["blog", "static", "generator", "markdown"],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "marked": "^12.0.0"
+  }
+}
