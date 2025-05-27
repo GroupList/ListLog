@@ -98,6 +98,7 @@ function generatePost(filename) {
     .replace(/{{content}}/g, post.content)
     .replace(/{{siteName}}/g, config.siteName)
     .replace(/{{siteDescription}}/g, config.siteDescription);
+    .replace(/{{siteUrl}}/g, config.siteUrl);
   
   // Handle tags
   const tagsHtml = post.tags.length > 0 
