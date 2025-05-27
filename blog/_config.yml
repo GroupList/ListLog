@@ -1,0 +1,6 @@
+title: GroupList Blog
+description: Insights, updates, and news from GroupList.io
+baseurl: "/blog" # This is important if the blog is under /blog/
+url: "https://grouplist.io"
+plugins:
+  - jekyll-feed
