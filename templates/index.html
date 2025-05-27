@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{siteName}} - {{siteDescription}}</title>
+    <meta name="description" content="{{siteDescription}}">
+    <link rel="stylesheet" href="/assets/style.css">
+    <link rel="alternate" type="application/rss+xml" title="{{siteName}} RSS Feed" href="/feed.xml">
+    <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <h1 class="site-title">
+                <a href="/">{{siteName}}</a>
+            </h1>
+            <p class="site-description">{{siteDescription}}</p>
+            <nav class="site-nav">
+                <a href="/">Home</a>
+                <a href="/feed.xml">RSS</a>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="main-content">
+        <div class="container">
+            <div class="posts-header">
+                <h2>Recent Posts</h2>
+                <p class="posts-count">{{postsCount}} posts and counting</p>
+            </div>
+            
+            <div class="posts-list">
+                {{posts}}
+            </div>
+        </div>
+    </main>
+    
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; 2025 {{siteName}}. Built with ListLog - a simple static blog generator.</p>
+            <p>
+                <a href="/feed.xml">RSS Feed</a> • 
+                <a href="https://github.com/yourusername/listlog">Source Code</a>
+            </p>
+        </div>
+    </footer>
+</body>
+</html>
