@@ -97,7 +97,7 @@ function generatePost(filename) {
     .replace(/{{author}}/g, post.author)
     .replace(/{{content}}/g, post.content)
     .replace(/{{siteName}}/g, config.siteName)
-    .replace(/{{siteDescription}}/g, config.siteDescription);
+    .replace(/{{siteDescription}}/g, config.siteDescription)
     .replace(/{{siteUrl}}/g, config.siteUrl);
   
   // Handle tags
