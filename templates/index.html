@@ -1,25 +1,38 @@
+# Updated Template Files
+
+## templates/index.html
+```html
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{language}}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <base href="{{siteUrl}}/">
     <title>{{siteName}} - {{siteDescription}}</title>
     <meta name="description" content="{{siteDescription}}">
-    <link rel="canonical" href="{{siteUrl}}">
-    <link rel="stylesheet" href="/assets/style.css">
-    <link rel="alternate" type="application/rss+xml" title="{{siteName}} RSS Feed" href="/feed.xml">
-    <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
+    <link rel="canonical" href="{{siteUrl}}/">
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="alternate" type="application/rss+xml" title="{{siteName}} RSS Feed" href="feed.xml">
+    <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+    
+    <!-- SEO Meta Tags -->
+    <meta property="og:title" content="{{siteName}}">
+    <meta property="og:description" content="{{siteDescription}}">
+    <meta property="og:url" content="{{siteUrl}}/">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{siteName}}">
+    <meta name="twitter:description" content="{{siteDescription}}">
 </head>
 <body>
     <header class="site-header">
         <div class="container">
             <h1 class="site-title">
-                <a href="/">{{siteName}}</a>
+                <a href="./">{{siteName}}</a>
             </h1>
             <p class="site-description">{{siteDescription}}</p>
             <nav class="site-nav">
-                <a href="/">Home</a>
+                <a href="./">Home</a>
                 <a href="feed.xml">RSS</a>
             </nav>
         </div>
@@ -40,12 +53,85 @@
     
     <footer class="site-footer">
         <div class="container">
-            <p>&copy; 2025 {{siteName}}. Built with ListLog - a simple static blog generator.</p>
+            <p>&copy; 2025 {{siteName}}. Built with ListLog.</p>
+            {{socialLinks}}
             <p>
-                <a href="feed.xml">RSS Feed</a> • 
-                <a href="https://github.com/grouplist/ListLog">Source Code</a>
+                <a href="feed.xml">RSS Feed</a>
+                {{#if socialLinks}} • {{/if}}
+                <a href="sitemap.xml">Sitemap</a>
             </p>
         </div>
     </footer>
 </body>
 </html>
+```
+
+## templates/post.html  
+```html
+<!DOCTYPE html>
+<html lang="{{language}}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <base href="{{siteUrl}}/">
+    <title>{{title}} - {{siteName}}</title>
+    <meta name="description" content="{{title}} - {{excerpt}}">
+    <link rel="canonical" href="{{siteUrl}}/{{slug}}/">
+    <link rel="stylesheet" href="../assets/style.css">
+    <link rel="alternate" type="application/rss+xml" title="{{siteName}} RSS Feed" href="../feed.xml">
+    <link rel="icon" href="../assets/favicon.ico" type="image/x-icon">
+    
+    <!-- SEO Meta Tags -->
+    <meta property="og:title" content="{{title}}">
+    <meta property="og:description" content="{{excerpt}}">
+    <meta property="og:url" content="{{siteUrl}}/{{slug}}/">
+    <meta property="og:type" content="article">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{title}}">
+    <meta name="twitter:description" content="{{excerpt}}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container">
+            <h1 class="site-title">
+                <a href="../">{{siteName}}</a>
+            </h1>
+            <nav class="site-nav">
+                <a href="../">← Back to Home</a>
+                <a href="../feed.xml">RSS</a>
+            </nav>
+        </div>
+    </header>
+    
+    <main class="main-content">
+        <div class="container">
+            <article class="post">
+                <header class="post-header">
+                    <h1 class="post-title">{{title}}</h1>
+                    <div class="post-meta">
+                        <span class="author">By {{author}}</span>
+                        <span class="date">{{date}}</span>
+                    </div>
+                    {{tags}}
+                </header>
+                
+                <div class="post-content">
+                    {{content}}
+                </div>
+                
+                <footer class="post-footer">
+                    <p><a href="../">← Back to all posts</a></p>
+                    {{socialLinks}}
+                </footer>
+            </article>
+        </div>
+    </main>
+    
+    <footer class="site-footer">
+        <div class="container">
+            <p>&copy; 2025 {{siteName}}. Built with ListLog.</p>
+        </div>
+    </footer>
+</body>
+</html>
+```
