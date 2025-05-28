@@ -7,19 +7,28 @@
     <title>{{title}} - {{siteName}}</title>
     <meta name="description" content="{{title}} - A post from {{siteName}}">
     <link rel="canonical" href="{{siteUrl}}/{{slug}}/">
-    <link rel="stylesheet" href="/assets/style.css">
-    <link rel="alternate" type="application/rss+xml" title="{{siteName}} RSS Feed" href="/feed.xml">
-    <link rel="icon" href="/assets/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="alternate" type="application/rss+xml" title="{{siteName}} RSS Feed" href="feed.xml">
+    <link rel="icon" href="assets/favicon.ico" type="image/x-icon">
+    
+    <!-- Enhanced SEO Meta Tags -->
+    <meta property="og:title" content="{{title}}">
+    <meta property="og:description" content="{{title}} - A post from {{siteName}}">
+    <meta property="og:url" content="{{siteUrl}}/{{slug}}/">
+    <meta property="og:type" content="article">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="{{title}}">
+    <meta name="twitter:description" content="{{title}} - A post from {{siteName}}">
 </head>
 <body>
     <header class="site-header">
         <div class="container">
             <h1 class="site-title">
-                <a href="/">{{siteName}}</a>
+                <a href="./">{{siteName}}</a>
             </h1>
             <nav class="site-nav">
-                <a href="/">← Back to Home</a>
-                <a href="/feed.xml">RSS</a>
+                <a href="./">← Back to Home</a>
+                <a href="feed.xml">RSS</a>
             </nav>
         </div>
     </header>
@@ -41,7 +50,8 @@
                 </div>
                 
                 <footer class="post-footer">
-                    <p><a href="/">← Back to all posts</a></p>
+                    <p><a href="./">← Back to all posts</a></p>
+                    {{socialLinks}}
                 </footer>
             </article>
         </div>
