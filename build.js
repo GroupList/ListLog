@@ -123,7 +123,23 @@ function generateSocialLinks() {
     }
   });
   
-  return links.length > 0 ? `<div class="social-links">${links.join(' • ')}</div>` : '';
+  return links.join(' • ');
+}
+
+// Generate footer navigation
+function generateFooterNav() {
+  const items = ['<a href="feed.xml">RSS Feed</a>'];
+  
+  const socialLinks = generateSocialLinks();
+  if (socialLinks) {
+    items.push(socialLinks);
+  }
+  
+  if (config.build.generateSitemap) {
+    items.push('<a href="sitemap.xml">Sitemap</a>');
+  }
+  
+  return items.join(' | ');
 }
 
 // Generate post HTML
@@ -155,6 +171,7 @@ function generatePost(filename) {
     .replace(/{{siteName}}/g, config.site.name)
     .replace(/{{siteDescription}}/g, config.site.description)
     .replace(/{{siteUrl}}/g, config.site.url)
+    .replace(/{{siteAuthor}}/g, config.site.author)
     .replace(/{{slug}}/g, post.slug);
   
   // Handle tags
@@ -163,9 +180,11 @@ function generatePost(filename) {
     : '';
   postHtml = postHtml.replace('{{tags}}', tagsHtml);
 
-  // Add social links
+  // Add social links and footer nav
   const socialLinks = generateSocialLinks();
+  const footerNav = generateFooterNav();
   postHtml = postHtml.replace('{{socialLinks}}', socialLinks);
+  postHtml = postHtml.replace('{{footerNav}}', footerNav);
   
   // Write post file
   const postDir = path.join(config.paths.output, slug);
@@ -305,9 +324,11 @@ function build() {
     .replace(/{{siteName}}/g, config.site.name)
     .replace(/{{siteDescription}}/g, config.site.description)
     .replace(/{{siteUrl}}/g, config.site.url)
+    .replace(/{{siteAuthor}}/g, config.site.author)
     .replace('{{posts}}', postsList)
     .replace('{{postsCount}}', posts.length)
-    .replace('{{socialLinks}}', generateSocialLinks());
+    .replace('{{socialLinks}}', generateSocialLinks())
+    .replace('{{footerNav}}', generateFooterNav());
   
   fs.writeFileSync(path.join(config.paths.output, 'index.html'), indexHtml);
   console.log('✓ Generated index page');
