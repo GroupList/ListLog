@@ -2,24 +2,69 @@ const fs = require('fs');
 const path = require('path');
 const { marked } = require('marked');
 
-// ListLog Configuration
-const config = {
-  postsDir: './posts',
-  outputDir: './dist',
-  templateDir: './templates',
-  siteName: 'ListLog',
-  siteDescription: 'A simple, clean blog for sharing your thoughts',
-  siteUrl: 'https://grouplist.github.io/ListLog'
-};
+// Load configuration
+let config;
+try {
+  const configPath = './listlog.config.json';
+  if (fs.existsSync(configPath)) {
+    config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    console.log('✓ Loaded configuration from listlog.config.json');
+  } else {
+    // Fallback to default config for GitLab
+    config = getDefaultConfig();
+    console.log('⚠ Using default configuration (create listlog.config.json to customize)');
+  }
+} catch (error) {
+  console.error('❌ Error loading configuration:', error.message);
+  process.exit(1);
+}
+
+// Default configuration fallback
+function getDefaultConfig() {
+  return {
+    site: {
+      name: 'ListLog',
+      description: 'A simple, clean blog for sharing your thoughts',
+      url: 'https://listlog-0d0e4e.gitlab.io',
+      author: 'ListLog Author',
+      language: 'en'
+    },
+    paths: {
+      posts: './posts',
+      templates: './templates',
+      assets: './assets',
+      output: './dist'
+    },
+    build: {
+      postsPerPage: 10,
+      excerptLength: 200,
+      dateFormat: { year: 'numeric', month: 'long', day: 'numeric' },
+      generateSitemap: true,
+      generateRobotsTxt: false
+    },
+    rss: {
+      enabled: true,
+      filename: 'feed.xml',
+      maxItems: 20
+    },
+    social: {
+      gitlab: 'https://gitlab.com/grouplist/ListLog'
+    },
+    features: {
+      tags: true,
+      archives: false
+    }
+  };
+}
 
 // Ensure output directory exists
-if (!fs.existsSync(config.outputDir)) {
-  fs.mkdirSync(config.outputDir, { recursive: true });
+if (!fs.existsSync(config.paths.output)) {
+  fs.mkdirSync(config.paths.output, { recursive: true });
 }
 
 // Read template files
 function readTemplate(filename) {
-  const templatePath = path.join(config.templateDir, filename);
+  const templatePath = path.join(config.paths.templates, filename);
   if (!fs.existsSync(templatePath)) {
     console.error(`Template ${filename} not found!`);
     process.exit(1);
@@ -63,16 +108,27 @@ function generateSlug(filename) {
 function formatDate(dateString) {
   if (!dateString) return new Date().toLocaleDateString();
   const date = new Date(dateString);
-  return date.toLocaleDateString('en-US', { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
+  return date.toLocaleDateString(config.site.language || 'en-US', config.build.dateFormat);
+}
+
+// Generate social links
+function generateSocialLinks() {
+  if (!config.social) return '';
+  
+  const links = [];
+  Object.entries(config.social).forEach(([platform, url]) => {
+    if (url) {
+      const platformName = platform.charAt(0).toUpperCase() + platform.slice(1);
+      links.push(`<a href="${url}" target="_blank" rel="noopener">${platformName}</a>`);
+    }
   });
+  
+  return links.length > 0 ? `<div class="social-links">${links.join(' • ')}</div>` : '';
 }
 
 // Generate post HTML
 function generatePost(filename) {
-  const filePath = path.join(config.postsDir, filename);
+  const filePath = path.join(config.paths.posts, filename);
   const rawContent = fs.readFileSync(filePath, 'utf8');
   const { metadata, content } = parseFrontMatter(rawContent);
   
@@ -82,32 +138,37 @@ function generatePost(filename) {
   const post = {
     title: metadata.title || slug.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
     date: metadata.date || new Date().toISOString().split('T')[0],
-    author: metadata.author || 'ListLog Author',
+    author: metadata.author || config.site.author,
     tags: metadata.tags ? metadata.tags.split(',').map(tag => tag.trim()) : [],
     slug,
     content: htmlContent,
-    excerpt: metadata.excerpt || htmlContent.replace(/<[^>]*>/g, '').substring(0, 200) + '...',
+    excerpt: metadata.excerpt || htmlContent.replace(/<[^>]*>/g, '').substring(0, config.build.excerptLength) + '...',
     filename
   };
   
-  // Generate post HTML
+  // Generate post HTML with all config replacements
   let postHtml = postTemplate
     .replace(/{{title}}/g, post.title)
     .replace(/{{date}}/g, formatDate(post.date))
     .replace(/{{author}}/g, post.author)
     .replace(/{{content}}/g, post.content)
-    .replace(/{{siteName}}/g, config.siteName)
-    .replace(/{{siteDescription}}/g, config.siteDescription)
-    .replace(/{{siteUrl}}/g, config.siteUrl);
+    .replace(/{{siteName}}/g, config.site.name)
+    .replace(/{{siteDescription}}/g, config.site.description)
+    .replace(/{{siteUrl}}/g, config.site.url)
+    .replace(/{{slug}}/g, post.slug);
   
   // Handle tags
   const tagsHtml = post.tags.length > 0 
     ? `<div class="tags">${post.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}</div>`
     : '';
   postHtml = postHtml.replace('{{tags}}', tagsHtml);
+
+  // Add social links
+  const socialLinks = generateSocialLinks();
+  postHtml = postHtml.replace('{{socialLinks}}', socialLinks);
   
   // Write post file
-  const postDir = path.join(config.outputDir, slug);
+  const postDir = path.join(config.paths.output, slug);
   if (!fs.existsSync(postDir)) {
     fs.mkdirSync(postDir, { recursive: true });
   }
@@ -139,12 +200,14 @@ function copyRecursive(src, dest) {
 
 // Generate RSS feed
 function generateRSS(posts) {
-  const rssItems = posts.slice(0, 10).map(post => `
+  if (!config.rss.enabled) return;
+  
+  const rssItems = posts.slice(0, config.rss.maxItems).map(post => `
     <item>
       <title><![CDATA[${post.title}]]></title>
       <description><![CDATA[${post.excerpt}]]></description>
-      <link>${config.siteUrl}/${post.slug}/</link>
-      <guid>${config.siteUrl}/${post.slug}/</guid>
+      <link>${config.site.url}/${post.slug}/</link>
+      <guid>${config.site.url}/${post.slug}/</guid>
       <pubDate>${new Date(post.date).toUTCString()}</pubDate>
     </item>
   `).join('');
@@ -152,75 +215,115 @@ function generateRSS(posts) {
   const rss = `<?xml version="1.0" encoding="UTF-8"?>
 <rss version="2.0">
   <channel>
-    <title>${config.siteName}</title>
-    <description>${config.siteDescription}</description>
-    <link>${config.siteUrl}</link>
+    <title>${config.site.name}</title>
+    <description>${config.site.description}</description>
+    <link>${config.site.url}</link>
+    <language>${config.site.language || 'en'}</language>
     <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
     ${rssItems}
   </channel>
 </rss>`;
 
-  fs.writeFileSync(path.join(config.outputDir, 'feed.xml'), rss);
+  fs.writeFileSync(path.join(config.paths.output, config.rss.filename), rss);
   console.log('✓ Generated RSS feed');
+}
+
+// Generate sitemap (if enabled)
+function generateSitemap(posts) {
+  if (!config.build.generateSitemap) return;
+  
+  const urls = [
+    `<url><loc>${config.site.url}/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>`
+  ];
+  
+  posts.forEach(post => {
+    urls.push(`<url><loc>${config.site.url}/${post.slug}/</loc><lastmod>${post.date}</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>`);
+  });
+  
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.join('\n')}
+</urlset>`;
+
+  fs.writeFileSync(path.join(config.paths.output, 'sitemap.xml'), sitemap);
+  console.log('✓ Generated sitemap');
+}
+
+// Generate robots.txt (if enabled)
+function generateRobotsTxt() {
+  if (!config.build.generateRobotsTxt) return;
+  
+  const robots = `User-agent: *
+Allow: /
+
+Sitemap: ${config.site.url}/sitemap.xml`;
+
+  fs.writeFileSync(path.join(config.paths.output, 'robots.txt'), robots);
+  console.log('✓ Generated robots.txt');
 }
 
 // Main build function
 function build() {
   console.log('🚀 Building ListLog...\n');
+  console.log(`📝 Site: ${config.site.name}`);
+  console.log(`🌐 URL: ${config.site.url}\n`);
   
   // Check if posts directory exists
-  if (!fs.existsSync(config.postsDir)) {
-    console.error('Posts directory not found! Create ./posts/ and add some .md files.');
+  if (!fs.existsSync(config.paths.posts)) {
+    console.error(`Posts directory not found: ${config.paths.posts}`);
     process.exit(1);
   }
   
   // Get all markdown files
-  const postFiles = fs.readdirSync(config.postsDir)
+  const postFiles = fs.readdirSync(config.paths.posts)
     .filter(file => file.endsWith('.md'))
     .sort()
     .reverse(); // Most recent first
   
   if (postFiles.length === 0) {
-    console.error('No markdown files found in ./posts/');
+    console.error(`No markdown files found in ${config.paths.posts}`);
     process.exit(1);
   }
   
   // Generate posts
   const posts = postFiles.map(generatePost);
   
-  // Generate index page
-  const postsList = posts.map(post => `
+  // Generate index page (fix relative URLs)
+  const postsList = posts.slice(0, config.build.postsPerPage).map(post => `
     <article class="post-preview">
-      <h2><a href="/${post.slug}/">${post.title}</a></h2>
+      <h2><a href="${post.slug}/">${post.title}</a></h2>
       <p class="post-meta">
         <span class="author">By ${post.author}</span>
         <span class="date">${formatDate(post.date)}</span>
       </p>
       <p class="excerpt">${post.excerpt}</p>
-      <a href="/${post.slug}/" class="read-more">Continue reading →</a>
+      <a href="${post.slug}/" class="read-more">Continue reading →</a>
     </article>
   `).join('');
   
   const indexHtml = indexTemplate
-    .replace(/{{siteName}}/g, config.siteName)
-    .replace(/{{siteDescription}}/g, config.siteDescription)
-    .replace(/{{siteUrl}}/g, config.siteUrl)
+    .replace(/{{siteName}}/g, config.site.name)
+    .replace(/{{siteDescription}}/g, config.site.description)
+    .replace(/{{siteUrl}}/g, config.site.url)
     .replace('{{posts}}', postsList)
-    .replace('{{postsCount}}', posts.length);
+    .replace('{{postsCount}}', posts.length)
+    .replace('{{socialLinks}}', generateSocialLinks());
   
-  fs.writeFileSync(path.join(config.outputDir, 'index.html'), indexHtml);
+  fs.writeFileSync(path.join(config.paths.output, 'index.html'), indexHtml);
   console.log('✓ Generated index page');
   
   // Copy assets
-  copyRecursive('./assets', path.join(config.outputDir, 'assets'));
+  copyRecursive(config.paths.assets, path.join(config.paths.output, 'assets'));
   console.log('✓ Copied assets');
   
-  // Generate RSS feed
+  // Generate additional files
   generateRSS(posts);
+  generateSitemap(posts);
+  generateRobotsTxt();
   
   console.log(`\n🎉 ListLog built successfully!`);
   console.log(`📝 ${posts.length} posts generated`);
-  console.log(`📁 Output: ${config.outputDir}`);
+  console.log(`📁 Output: ${config.paths.output}`);
 }
 
 // Run build
