@@ -1,0 +1,53 @@
+{
+  "site": {
+    "name": "ListLog",
+    "description": "A simple, clean blog for sharing your thoughts",
+    "url": "https://listlog-0d0e4e.gitlab.io",
+    "author": "Perry Toone",
+    "language": "en",
+    "timezone": "America/Toronto"
+  },
+  "paths": {
+    "posts": "./posts",
+    "templates": "./templates",
+    "assets": "./assets",
+    "output": "./dist"
+  },
+  "build": {
+    "postsPerPage": 10,
+    "excerptLength": 200,
+    "dateFormat": {
+      "year": "numeric",
+      "month": "long",
+      "day": "numeric"
+    },
+    "generateSitemap": true,
+    "generateRobotsTxt": true
+  },
+  "rss": {
+    "enabled": true,
+    "filename": "feed.xml",
+    "maxItems": 20,
+    "includeContent": false
+  },
+  "social": {
+    "gitlab": "https://gitlab.com/grouplist/ListLog",
+    "github": "https://github.com/grouplist/ListLog"
+  },
+  "features": {
+    "tags": true,
+    "archives": false,
+    "search": false,
+    "comments": false
+  },
+  "seo": {
+    "keywords": ["blog", "static", "generator", "gitlab", "pages"],
+    "ogImage": "/assets/og-image.png",
+    "twitterCard": "summary_large_image"
+  },
+  "analytics": {
+    "googleAnalytics": "",
+    "plausible": "",
+    "fathom": ""
+  }
+}
