@@ -2,7 +2,7 @@
   "site": {
     "name": "ListLog",
     "description": "A simple, clean blog for sharing your thoughts",
-    "url": "https://listlog-0d0e4e.gitlab.io",
+    "url": "https://grouplist.github.io/ListLog/",
     "author": "Perry Toone",
     "language": "en",
     "timezone": "America/Toronto"
@@ -32,7 +32,7 @@
   },
   "social": {
     "gitlab": "https://gitlab.com/grouplist/ListLog",
-    "github": "https://github.com/grouplist/ListLog"
+    "github": "https://grouplist.github.io/ListLog/"
   },
   "features": {
     "tags": true,
